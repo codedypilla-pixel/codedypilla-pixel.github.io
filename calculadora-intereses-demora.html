@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Calculadora de intereses de demora de una factura impagada</title>
+<meta name="description" content="Calcula los intereses de demora de una factura pagada con retraso y la indemnización de 40 € por costes de cobro que prevé la ley de morosidad. Gratis y sin registro.">
+<link rel="canonical" href="https://codedypilla-pixel.github.io/calculadora-intereses-demora.html">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <h1>Calculadora de intereses de demora</h1>
+  <p class="lead">Cuánto puedes reclamar por una factura que te han pagado tarde, o que todavía no te han pagado.</p>
+  <section class="card">
+    <div class="grid">
+      <div><label for="amount">Importe pendiente (€)</label><input id="amount" type="number" inputmode="decimal" min="0" step="0.01" value="1000"></div>
+      <div><label for="rate">Tipo de interés anual (%)</label><input id="rate" type="number" inputmode="decimal" min="0" step="0.01" value="10"></div>
+      <div><label for="due">Fecha de vencimiento</label><input id="due" type="date"></div>
+      <div><label for="paid">Fecha de pago (o de hoy)</label><input id="paid" type="date"></div>
+    </div>
+    <label style="display:flex;gap:8px;align-items:center;color:inherit;font-size:15px;margin-top:14px"><input id="fixed" type="checkbox" checked style="width:auto">Sumar los 40 € de indemnización por costes de cobro</label>
+    <div class="res">
+      <div><span>Días de retraso</span><span id="oDays"></span></div>
+      <div><span>Intereses de demora</span><span id="oInt"></span></div>
+      <div id="rowFixed"><span>Indemnización por costes de cobro</span><span>40,00 €</span></div>
+      <div class="big"><span>Total a reclamar además de la factura</span><span id="oTotal"></span></div>
+    </div>
+    <p class="note">El tipo que aparece es un ejemplo. El tipo legal de demora en operaciones comerciales cambia cada semestre y se publica en el BOE: comprueba el vigente antes de reclamar.</p>
+  </section>
+  <h2>Qué dice la ley de morosidad</h2>
+  <p>En las operaciones entre empresas y autónomos, la Ley 3/2004 permite cobrar intereses de demora desde el día siguiente al vencimiento, sin necesidad de aviso previo. Si el contrato no fija otro tipo, se aplica el tipo legal de demora: el tipo de referencia del Banco Central Europeo más ocho puntos.</p>
+  <p>Además, el acreedor tiene derecho a una cantidad fija de 40 € por los costes de cobro, que se suma a la deuda sin tener que justificarla.</p>
+  <p>La calculadora aplica interés simple por días naturales: importe × tipo × días ÷ 365. No sirve para deudas con consumidores ni sustituye al cálculo que haga un juzgado o tu asesor.</p>
+</main>
+<script src="lib.js"></script>
+<script src="common.js"></script>
+<script>
+const todayIso = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); };
+$('#paid').value = todayIso();
+$('#due').value = Lib.addDays(todayIso(), -30);
+function calc() {
+  const due = $('#due').value, paid = $('#paid').value;
+  const days = due && paid ? Lib.daysBetween(due, paid) : NaN;
+  const fixed = $('#fixed').checked;
+  $('#rowFixed').hidden = !fixed;
+  if (!Number.isFinite(days)) { ['#oDays', '#oInt', '#oTotal'].forEach((id) => { $(id).textContent = '—'; }); return; }
+  const interest = Lib.lateInterest(Math.max(Lib.num($('#amount').value), 0), Math.max(Lib.num($('#rate').value), 0), days);
+  const late = days > 0;
+  $('#oDays').textContent = late ? String(days) : 'Sin retraso';
+  $('#oInt').textContent = eur(interest);
+  $('#oTotal').textContent = eur(late ? Lib.r2(interest + (fixed ? 40 : 0)) : 0);
+}
+document.addEventListener('input', calc);
+calc();
+</script>
+</body>
+</html>

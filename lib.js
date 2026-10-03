@@ -87,6 +87,80 @@
     return type === 'nopass' ? `WIFI:T:nopass;S:${e(ssid)};;` : `WIFI:T:${type};S:${e(ssid)};P:${e(pass)};;`;
   }
 
-  const Lib = { r2, num, dniLetter, checkId, checkIban, vat, hourlyRate, margin, priceForMargin, addDays, daysBetween, wifiPayload };
+  // Spanish number words. `apoc` shortens a final "uno" to "un" ("veintiún euros", "treinta y un mil").
+  const W_U = ['', 'uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve', 'diez', 'once', 'doce', 'trece', 'catorce', 'quince', 'dieciséis', 'diecisiete', 'dieciocho', 'diecinueve', 'veinte', 'veintiuno', 'veintidós', 'veintitrés', 'veinticuatro', 'veinticinco', 'veintiséis', 'veintisiete', 'veintiocho', 'veintinueve'];
+  const W_T = ['', '', '', 'treinta', 'cuarenta', 'cincuenta', 'sesenta', 'setenta', 'ochenta', 'noventa'];
+  const W_C = ['', 'ciento', 'doscientos', 'trescientos', 'cuatrocientos', 'quinientos', 'seiscientos', 'setecientos', 'ochocientos', 'novecientos'];
+  function below1000(n, apoc) {
+    if (n === 100) return 'cien';
+    const out = [], c = Math.floor(n / 100), r = n % 100;
+    if (c) out.push(W_C[c]);
+    if (r && r < 30) out.push(apoc && r === 1 ? 'un' : apoc && r === 21 ? 'veintiún' : W_U[r]);
+    else if (r) { const u = r % 10; out.push(W_T[Math.floor(r / 10)] + (u ? ' y ' + (apoc && u === 1 ? 'un' : W_U[u]) : '')); }
+    return out.join(' ');
+  }
+  function below1e6(n, apoc) {
+    const k = Math.floor(n / 1000), u = n % 1000, out = [];
+    if (k) out.push(k === 1 ? 'mil' : below1000(k, true) + ' mil');
+    if (u) out.push(below1000(u, apoc));
+    return out.join(' ');
+  }
+  const MAX_WORDS = 999999999999;
+  function numberToWords(n, apoc = false) {
+    if (!Number.isInteger(n) || n < 0 || n > MAX_WORDS) return null;
+    if (n === 0) return 'cero';
+    const m = Math.floor(n / 1e6), rest = n % 1e6, out = [];
+    if (m) out.push(m === 1 ? 'un millón' : below1e6(m, true) + ' millones');
+    if (rest) out.push(below1e6(rest, apoc));
+    return out.join(' ');
+  }
+  function eurosToWords(amount) {
+    const cents = Math.round(amount * 100);
+    if (!Number.isFinite(cents) || cents < 0 || cents > MAX_WORDS * 100 + 99) return null;
+    const e = Math.floor(cents / 100), c = cents % 100;
+    // Round millions take "de": "un millón de euros".
+    let s = numberToWords(e, true) + (e >= 1e6 && e % 1e6 === 0 ? ' de' : '') + (e === 1 ? ' euro' : ' euros');
+    if (c) s += ' con ' + numberToWords(c, true) + (c === 1 ? ' céntimo' : ' céntimos');
+    return s;
+  }
+
+  const percentOf = (pct, total) => r2(total * pct / 100);
+  const whatPercent = (part, total) => (total ? r2(part / total * 100) : null);
+  const percentChange = (from, to) => (from ? r2((to - from) / Math.abs(from) * 100) : null);
+  function discount(price, pct) { const saved = r2(price * pct / 100); return { saved, final: r2(price - saved) }; }
+
+  // Simple (non-compounding) late-payment interest on calendar days.
+  function lateInterest(amount, ratePct, days) { return days > 0 ? r2(amount * ratePct / 100 * days / 365) : 0; }
+
+  function breakEven(fixed, price, variable) {
+    const unitMargin = r2(price - variable);
+    if (unitMargin <= 0) return null;
+    const units = Math.ceil(r2(fixed / unitMargin));
+    return { unitMargin, units, revenue: r2(units * price), marginPct: r2(unitMargin / price * 100) };
+  }
+
+  // Recargo de equivalencia surcharge that goes with each standard VAT rate.
+  const RE_RATES = { 21: 5.2, 10: 1.4, 4: 0.5 };
+  function surcharge(base, vatRate) {
+    const re = RE_RATES[vatRate];
+    if (re === undefined) return null;
+    const tax = r2(base * vatRate / 100), extra = r2(base * re / 100);
+    return { reRate: re, tax, extra, total: r2(base + tax + extra) };
+  }
+
+  function textStats(text) {
+    const t = String(text ?? '');
+    const words = (t.trim().match(/\S+/g) || []).length;
+    return {
+      words,
+      chars: [...t].length,
+      charsNoSpaces: [...t.replace(/\s/g, '')].length,
+      lines: t ? t.split(/\r?\n/).length : 0,
+      paragraphs: (t.split(/\n\s*\n/).filter((p) => p.trim())).length,
+      minutes: words / 200
+    };
+  }
+
+  const Lib = { r2, num, dniLetter, checkId, checkIban, vat, hourlyRate, margin, priceForMargin, addDays, daysBetween, wifiPayload, numberToWords, eurosToWords, percentOf, whatPercent, percentChange, discount, lateInterest, breakEven, surcharge, textStats };
   if (typeof module !== 'undefined' && module.exports) module.exports = Lib; else g.Lib = Lib;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

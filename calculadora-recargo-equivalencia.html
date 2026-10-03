@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Calculadora de recargo de equivalencia: IVA más recargo del 5,2 %, 1,4 % y 0,5 %</title>
+<meta name="description" content="Calcula el total de una factura con IVA y recargo de equivalencia: 21 % más 5,2 %, 10 % más 1,4 % o 4 % más 0,5 %. Para comercio minorista. Gratis y sin registro.">
+<link rel="canonical" href="https://codedypilla-pixel.github.io/calculadora-recargo-equivalencia.html">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <h1>Calculadora de recargo de equivalencia</h1>
+  <p class="lead">El total de una factura con IVA y recargo de equivalencia, para comprobar lo que te cobra tu proveedor o lo que tienes que facturar a un minorista.</p>
+  <section class="card">
+    <div class="grid">
+      <div><label for="base">Base imponible (€)</label><input id="base" type="number" inputmode="decimal" min="0" step="0.01" value="100"></div>
+      <div><label for="rate">Tipo de IVA</label><select id="rate"><option value="21">21 % + recargo del 5,2 %</option><option value="10">10 % + recargo del 1,4 %</option><option value="4">4 % + recargo del 0,5 %</option></select></div>
+    </div>
+    <div class="res">
+      <div><span>Base imponible</span><span id="oBase"></span></div>
+      <div><span id="lTax">IVA</span><span id="oTax"></span></div>
+      <div><span id="lRe">Recargo de equivalencia</span><span id="oRe"></span></div>
+      <div class="big"><span>Total de la factura</span><span id="oTotal"></span></div>
+    </div>
+  </section>
+  <h2>Qué es el recargo de equivalencia</h2>
+  <p>Es un régimen especial de IVA obligatorio para los comerciantes minoristas que son autónomos y venden al cliente final sin transformar el producto. A cambio de no presentar declaraciones de IVA, pagan un recargo a su proveedor en cada compra.</p>
+  <p>El proveedor añade en la factura, además del IVA, el recargo que corresponde: 5,2 % con el IVA del 21 %, 1,4 % con el del 10 % y 0,5 % con el del 4 %. Los dos se calculan sobre la misma base imponible.</p>
+  <p>Algunos productos tienen tipos propios, como el tabaco, y pueden aprobarse tipos temporales. Ante la duda, confirma el tipo con tu gestoría.</p>
+</main>
+<script src="lib.js"></script>
+<script src="common.js"></script>
+<script>
+function calc() {
+  const base = Lib.r2(Math.max(Lib.num($('#base').value), 0)), rate = +$('#rate').value;
+  const r = Lib.surcharge(base, rate);
+  $('#oBase').textContent = eur(base);
+  $('#lTax').textContent = `IVA (${pct(rate)})`;
+  $('#oTax').textContent = eur(r.tax);
+  $('#lRe').textContent = `Recargo de equivalencia (${pct(r.reRate)})`;
+  $('#oRe').textContent = eur(r.extra);
+  $('#oTotal').textContent = eur(r.total);
+}
+document.addEventListener('input', calc);
+calc();
+</script>
+</body>
+</html>

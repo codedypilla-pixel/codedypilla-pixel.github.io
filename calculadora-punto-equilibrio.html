@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Calculadora de punto de equilibrio: cuánto tienes que vender para no perder</title>
+<meta name="description" content="Calcula el punto de equilibrio de tu negocio: cuántas unidades o servicios tienes que vender al mes para cubrir los costes fijos y empezar a ganar. Gratis y sin registro.">
+<link rel="canonical" href="https://codedypilla-pixel.github.io/calculadora-punto-equilibrio.html">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <h1>Calculadora de punto de equilibrio</h1>
+  <p class="lead">Cuánto tienes que vender para cubrir gastos. A partir de ahí, cada venta es beneficio.</p>
+  <section class="card">
+    <div class="grid">
+      <div><label for="fixed">Costes fijos al mes (€)</label><input id="fixed" type="number" inputmode="decimal" min="0" step="10" value="3000"></div>
+      <div><label for="price">Precio de venta por unidad (€)</label><input id="price" type="number" inputmode="decimal" min="0" step="0.01" value="50"></div>
+      <div><label for="var">Coste variable por unidad (€)</label><input id="var" type="number" inputmode="decimal" min="0" step="0.01" value="20"></div>
+    </div>
+    <div class="res" id="res">
+      <div><span>Margen por unidad</span><span id="oMargin"></span></div>
+      <div><span>Facturación necesaria al mes</span><span id="oRev"></span></div>
+      <div class="big"><span>Unidades que tienes que vender</span><span id="oUnits"></span></div>
+    </div>
+    <div class="verdict bad" id="err" hidden>Con ese precio no hay punto de equilibrio<small>Cada unidad cuesta lo mismo o más de lo que ingresa, así que vender más no cubre los costes fijos. Sube el precio o baja el coste variable.</small></div>
+    <p class="note">Usa importes sin IVA. Una «unidad» puede ser un producto, una hora o un servicio.</p>
+  </section>
+  <h2>Qué es el punto de equilibrio</h2>
+  <p>Es el nivel de ventas en el que los ingresos igualan a los costes: ni ganas ni pierdes. Se calcula dividiendo los costes fijos entre el margen de cada unidad, que es el precio menos el coste variable.</p>
+  <p>Los <strong>costes fijos</strong> se pagan vendas o no: alquiler, cuota de autónomos, gestoría, seguros, sueldos. Los <strong>costes variables</strong> dependen de cada venta: material, envío, comisiones.</p>
+  <p>Con 3.000 € de costes fijos, un precio de 50 € y un coste variable de 20 €, cada unidad deja 30 €, así que hacen falta 100 unidades al mes.</p>
+</main>
+<script src="lib.js"></script>
+<script src="common.js"></script>
+<script>
+function calc() {
+  const v = (id) => Math.max(Lib.num($(id).value), 0);
+  const r = Lib.breakEven(v('#fixed'), v('#price'), v('#var'));
+  $('#err').hidden = !!r;
+  $('#res').hidden = !r;
+  if (!r) return;
+  $('#oMargin').textContent = `${eur(r.unitMargin)} (${pct(r.marginPct)})`;
+  $('#oRev').textContent = eur(r.revenue);
+  $('#oUnits').textContent = new Intl.NumberFormat('es-ES').format(r.units);
+}
+document.addEventListener('input', calc);
+calc();
+</script>
+</body>
+</html>

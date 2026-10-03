@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Número a letras: convertir un importe en euros a texto</title>
+<meta name="description" content="Convierte un número o un importe en euros a letras, con céntimos, para recibos, cheques, contratos y pagarés. Gratis, sin registro y con la ortografía correcta.">
+<link rel="canonical" href="https://codedypilla-pixel.github.io/numero-a-letras.html">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <h1>Convertir un número a letras</h1>
+  <p class="lead">Escribe una cantidad y la tienes en letras, lista para copiar en un recibo, un cheque o un contrato.</p>
+  <section class="card">
+    <label for="n">Cantidad</label>
+    <input id="n" type="number" inputmode="decimal" min="0" step="0.01" value="1234.56">
+    <label>Formato</label>
+    <div class="seg">
+      <label><input type="radio" name="mode" value="eur" checked>Importe en euros</label>
+      <label><input type="radio" name="mode" value="num">Solo el número</label>
+    </div>
+    <div class="seg" style="margin-top:8px">
+      <label><input type="radio" name="case" value="lower" checked>minúsculas</label>
+      <label><input type="radio" name="case" value="first">Primera mayúscula</label>
+      <label><input type="radio" name="case" value="upper">MAYÚSCULAS</label>
+    </div>
+    <div class="verdict" id="out"></div>
+    <button class="btn" id="copy" type="button">Copiar</button>
+  </section>
+  <h2>Reglas que aplica</h2>
+  <p>Del 16 al 29 los números se escriben en una sola palabra (dieciséis, veintidós); a partir del 31, separados por «y» (treinta y uno). Se escribe «cien» para 100 exacto y «ciento» en el resto (ciento uno).</p>
+  <p>Delante de «euros», de «mil» y de «millones», «uno» pasa a «un»: veintiún euros, treinta y un mil. Los millones exactos llevan «de»: un millón de euros.</p>
+  <p>En modo «solo el número» se convierte la parte entera. Admite cantidades hasta 999.999.999.999.</p>
+</main>
+<script src="lib.js"></script>
+<script src="common.js"></script>
+<script>
+function calc() {
+  const raw = $('#n').value.trim();
+  const out = $('#out');
+  out.className = 'verdict';
+  $('#copy').hidden = true;
+  if (!raw) { out.textContent = 'Escribe una cantidad.'; return; }
+  const x = Lib.num(raw);
+  const euros = document.querySelector('[name=mode]:checked').value === 'eur';
+  let s = x < 0 ? null : euros ? Lib.eurosToWords(x) : Lib.numberToWords(Math.floor(x));
+  if (s === null) { out.className = 'verdict bad'; out.textContent = 'Escribe una cantidad entre 0 y 999.999.999.999.'; return; }
+  const c = document.querySelector('[name=case]:checked').value;
+  if (c === 'upper') s = s.toLocaleUpperCase('es'); else if (c === 'first') s = s[0].toLocaleUpperCase('es') + s.slice(1);
+  out.className = 'verdict ok';
+  out.textContent = s;
+  $('#copy').hidden = false;
+  $('#copy').textContent = 'Copiar';
+}
+$('#copy').addEventListener('click', async () => {
+  try { await navigator.clipboard.writeText($('#out').textContent); $('#copy').textContent = 'Copiado'; }
+  catch { $('#copy').textContent = 'No se ha podido copiar: selecciona el texto'; }
+});
+document.addEventListener('input', calc);
+calc();
+</script>
+</body>
+</html>

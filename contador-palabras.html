@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Contador de palabras y caracteres online, gratis y sin registro</title>
+<meta name="description" content="Cuenta las palabras, los caracteres con y sin espacios, las líneas y los párrafos de un texto, y calcula el tiempo de lectura. Tu texto no sale de tu navegador.">
+<link rel="canonical" href="https://codedypilla-pixel.github.io/contador-palabras.html">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <h1>Contador de palabras y caracteres</h1>
+  <p class="lead">Pega o escribe un texto y verás cuánto ocupa mientras escribes.</p>
+  <section class="card">
+    <label for="t">Tu texto</label>
+    <textarea id="t" rows="10" placeholder="Escribe o pega aquí…"></textarea>
+    <div class="res">
+      <div class="big" style="border-top:0;margin:0;padding-top:0"><span>Palabras</span><span id="oW">0</span></div>
+      <div><span>Caracteres (con espacios)</span><span id="oC">0</span></div>
+      <div><span>Caracteres (sin espacios)</span><span id="oN">0</span></div>
+      <div><span>Líneas</span><span id="oL">0</span></div>
+      <div><span>Párrafos</span><span id="oP">0</span></div>
+      <div><span>Tiempo de lectura</span><span id="oM">—</span></div>
+    </div>
+    <p class="note">El texto se cuenta en tu navegador y no se guarda ni se envía a ningún sitio.</p>
+  </section>
+  <h2>Para qué sirve contar caracteres</h2>
+  <p>Muchos sitios limitan la longitud del texto: el título de una página web se corta en los buscadores a partir de unos 60 caracteres y la descripción a partir de unos 155. Los anuncios, los SMS y los formularios oficiales también tienen su tope.</p>
+  <p>El tiempo de lectura se estima a 200 palabras por minuto, una velocidad media para un adulto leyendo en pantalla.</p>
+</main>
+<script src="lib.js"></script>
+<script src="common.js"></script>
+<script>
+const n = (v) => new Intl.NumberFormat('es-ES').format(v);
+function calc() {
+  const s = Lib.textStats($('#t').value);
+  $('#oW').textContent = n(s.words);
+  $('#oC').textContent = n(s.chars);
+  $('#oN').textContent = n(s.charsNoSpaces);
+  $('#oL').textContent = n(s.lines);
+  $('#oP').textContent = n(s.paragraphs);
+  $('#oM').textContent = !s.words ? '—' : s.minutes < 1 ? 'menos de 1 min' : `${Math.round(s.minutes)} min`;
+}
+$('#t').addEventListener('input', calc);
+calc();
+</script>
+</body>
+</html>

@@ -6,7 +6,13 @@ const TOOLS = [
   { href: '/calculadora-margen.html', t: 'Calculadora de margen', d: 'Margen, recargo y precio de venta a partir del coste.' },
   { href: '/validar-dni-nie-cif-iban.html', t: 'Validar DNI, NIE, CIF e IBAN', d: 'Comprueba un documento o una cuenta y calcula la letra.' },
   { href: '/calculadora-vencimiento.html', t: 'Vencimiento de facturas', d: 'Fecha de pago a 30, 60 o 90 días y días que faltan.' },
-  { href: '/generador-qr.html', t: 'Generador de QR y QR de WiFi', d: 'Crea un código QR de un enlace, un texto o tu WiFi.' }
+  { href: '/generador-qr.html', t: 'Generador de QR y QR de WiFi', d: 'Crea un código QR de un enlace, un texto o tu WiFi.' },
+  { href: '/calculadora-porcentajes.html', t: 'Calculadora de porcentajes', d: 'Porcentaje de una cantidad, descuento y subida o bajada.' },
+  { href: '/numero-a-letras.html', t: 'Número a letras', d: 'Convierte un importe en euros a texto para recibos y contratos.' },
+  { href: '/calculadora-intereses-demora.html', t: 'Intereses de demora', d: 'Cuánto reclamar por una factura pagada con retraso.' },
+  { href: '/calculadora-punto-equilibrio.html', t: 'Punto de equilibrio', d: 'Cuánto tienes que vender al mes para cubrir gastos.' },
+  { href: '/calculadora-recargo-equivalencia.html', t: 'Recargo de equivalencia', d: 'IVA más recargo del 5,2 %, 1,4 % o 0,5 % en una factura.' },
+  { href: '/contador-palabras.html', t: 'Contador de palabras y caracteres', d: 'Palabras, caracteres, líneas y tiempo de lectura de un texto.' }
 ];
 const eur = (n) => new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(n);
 const pct = (n) => new Intl.NumberFormat('es-ES', { maximumFractionDigits: 2 }).format(n) + ' %';

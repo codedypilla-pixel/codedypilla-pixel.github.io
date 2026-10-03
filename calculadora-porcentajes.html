@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Calculadora de porcentajes: porcentaje de una cantidad, descuento y variación</title>
+<meta name="description" content="Calcula el porcentaje de una cantidad, qué porcentaje es un número de otro, el precio con descuento y la subida o bajada en porcentaje. Gratis y sin registro.">
+<link rel="canonical" href="https://codedypilla-pixel.github.io/calculadora-porcentajes.html">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <h1>Calculadora de porcentajes</h1>
+  <p class="lead">Las cuatro cuentas con porcentajes que más se usan, cada una con su resultado al momento.</p>
+  <section class="card">
+    <h2 style="margin-top:0">¿Cuánto es el X % de una cantidad?</h2>
+    <div class="grid">
+      <div><label for="a1">Porcentaje (%)</label><input id="a1" type="number" inputmode="decimal" step="any" value="21"></div>
+      <div><label for="a2">Cantidad</label><input id="a2" type="number" inputmode="decimal" step="any" value="200"></div>
+    </div>
+    <div class="res"><div class="big" style="border-top:0;margin:0;padding-top:0"><span>Resultado</span><span id="oA"></span></div></div>
+  </section>
+  <section class="card">
+    <h2 style="margin-top:0">¿Qué porcentaje es un número de otro?</h2>
+    <div class="grid">
+      <div><label for="b1">Parte</label><input id="b1" type="number" inputmode="decimal" step="any" value="50"></div>
+      <div><label for="b2">Total</label><input id="b2" type="number" inputmode="decimal" step="any" value="200"></div>
+    </div>
+    <div class="res"><div class="big" style="border-top:0;margin:0;padding-top:0"><span>Resultado</span><span id="oB"></span></div></div>
+  </section>
+  <section class="card">
+    <h2 style="margin-top:0">Precio con descuento</h2>
+    <div class="grid">
+      <div><label for="c1">Precio original (€)</label><input id="c1" type="number" inputmode="decimal" min="0" step="0.01" value="80"></div>
+      <div><label for="c2">Descuento (%)</label><input id="c2" type="number" inputmode="decimal" min="0" max="100" step="any" value="15"></div>
+    </div>
+    <div class="res">
+      <div><span>Te ahorras</span><span id="oC1"></span></div>
+      <div class="big"><span>Precio final</span><span id="oC2"></span></div>
+    </div>
+  </section>
+  <section class="card">
+    <h2 style="margin-top:0">Subida o bajada en porcentaje</h2>
+    <div class="grid">
+      <div><label for="d1">Valor inicial</label><input id="d1" type="number" inputmode="decimal" step="any" value="100"></div>
+      <div><label for="d2">Valor final</label><input id="d2" type="number" inputmode="decimal" step="any" value="125"></div>
+    </div>
+    <div class="res"><div class="big" style="border-top:0;margin:0;padding-top:0"><span>Variación</span><span id="oD"></span></div></div>
+  </section>
+  <h2>Cómo se calcula un porcentaje</h2>
+  <p>El X % de una cantidad es la cantidad multiplicada por X y dividida entre 100: el 21 % de 200 es 200 × 21 ÷ 100 = 42.</p>
+  <p>Para saber qué porcentaje es una parte de un total se divide la parte entre el total y se multiplica por 100: 50 de 200 es el 25 %.</p>
+  <p>La variación entre dos valores es la diferencia dividida entre el valor inicial. De 100 a 125 hay una subida del 25 %, pero de 125 a 100 la bajada es del 20 %, porque el punto de partida es distinto.</p>
+</main>
+<script src="lib.js"></script>
+<script src="common.js"></script>
+<script>
+const n = (v) => new Intl.NumberFormat('es-ES', { maximumFractionDigits: 2 }).format(v);
+const v = (id) => Lib.num($(id).value);
+function calc() {
+  $('#oA').textContent = n(Lib.percentOf(v('#a1'), v('#a2')));
+  const b = Lib.whatPercent(v('#b1'), v('#b2'));
+  $('#oB').textContent = b === null ? '—' : pct(b);
+  const c = Lib.discount(Math.max(v('#c1'), 0), Math.min(Math.max(v('#c2'), 0), 100));
+  $('#oC1').textContent = eur(c.saved);
+  $('#oC2').textContent = eur(c.final);
+  const d = Lib.percentChange(v('#d1'), v('#d2'));
+  $('#oD').textContent = d === null ? '—' : (d > 0 ? 'Subida del ' : d < 0 ? 'Bajada del ' : 'Sin cambio: ') + pct(Math.abs(d));
+}
+document.addEventListener('input', calc);
+calc();
+</script>
+</body>
+</html>

@@ -11,6 +11,12 @@ Calculadoras y generadores sencillos para autónomos y pequeños negocios. Sin r
 - [Validar DNI, NIE, CIF e IBAN](https://codedypilla-pixel.github.io/validar-dni-nie-cif-iban.html)
 - [Vencimiento de facturas](https://codedypilla-pixel.github.io/calculadora-vencimiento.html)
 - [Generador de QR y QR de WiFi](https://codedypilla-pixel.github.io/generador-qr.html)
+- [Calculadora de porcentajes](https://codedypilla-pixel.github.io/calculadora-porcentajes.html)
+- [Número a letras](https://codedypilla-pixel.github.io/numero-a-letras.html)
+- [Intereses de demora](https://codedypilla-pixel.github.io/calculadora-intereses-demora.html)
+- [Punto de equilibrio](https://codedypilla-pixel.github.io/calculadora-punto-equilibrio.html)
+- [Recargo de equivalencia](https://codedypilla-pixel.github.io/calculadora-recargo-equivalencia.html)
+- [Contador de palabras y caracteres](https://codedypilla-pixel.github.io/contador-palabras.html)
 
 Los resultados son orientativos y no son asesoramiento fiscal.
 
