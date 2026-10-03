@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>¿Estoy obligado a Verifactu? Test para autónomos y empresas (fechas 2027)</title>
+<meta name="description" content="Comprueba en cuatro preguntas si Verifactu te afecta, desde qué fecha y qué tienes que hacer. Basado en las preguntas frecuentes de la Agencia Tributaria. Gratis y sin registro.">
+<link rel="canonical" href="https://codedypilla-pixel.github.io/verifactu-obligado.html">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <h1>¿Estoy obligado a Verifactu?</h1>
+  <p class="lead">Cuatro preguntas para saber si la norma de los programas de facturación te afecta, desde cuándo y qué tienes que hacer.</p>
+  <section class="card">
+    <label>1. ¿Qué eres?</label>
+    <div class="seg">
+      <label><input type="radio" name="taxpayer" value="autonomo" checked>Autónomo (IRPF)</label>
+      <label><input type="radio" name="taxpayer" value="sociedad">Sociedad (Impuesto sobre Sociedades)</label>
+    </div>
+    <label>2. ¿Dónde tienes el domicilio fiscal?</label>
+    <div class="seg">
+      <label><input type="radio" name="territory" value="comun" checked>Resto de España, incluidas Canarias, Ceuta y Melilla</label>
+      <label><input type="radio" name="territory" value="foral">País Vasco o Navarra</label>
+    </div>
+    <label>3. ¿Estás en el SII (Suministro Inmediato de Información del IVA)?</label>
+    <div class="seg">
+      <label><input type="radio" name="sii" value="no" checked>No</label>
+      <label><input type="radio" name="sii" value="si">Sí</label>
+    </div>
+    <label>4. ¿Cómo haces tus facturas?</label>
+    <div class="seg">
+      <label><input type="radio" name="method" value="software" checked>Con un programa o aplicación de facturación</label>
+      <label><input type="radio" name="method" value="office">Con Word o Excel</label>
+      <label><input type="radio" name="method" value="manual">A mano, en papel o talonario</label>
+      <label><input type="radio" name="method" value="none">No emito facturas</label>
+    </div>
+    <div class="verdict" id="out"></div>
+  </section>
+
+  <h2>Qué es Verifactu, en dos frases</h2>
+  <p>Es el nombre con el que se conoce al reglamento que fija cómo deben ser los programas de facturación (Real Decreto 1007/2023): tienen que guardar un registro de cada factura que no se pueda alterar y añadir un código QR a la factura. La norma regula el programa con el que facturas, no te obliga a facturar de una forma nueva si ya lo haces a mano.</p>
+  <h2>Fechas</h2>
+  <p>El Real Decreto-ley 15/2025 amplió los plazos. Las sociedades que tributan en el Impuesto sobre Sociedades deben tener el sistema adaptado antes del 1 de enero de 2027, y el resto de obligados, incluidos los autónomos, antes del 1 de julio de 2027.</p>
+  <h2>Tener un programa adaptado es obligatorio; enviar las facturas a Hacienda, no</h2>
+  <p>Lo obligatorio es que tu programa cumpla los requisitos. Enviar automáticamente cada registro a la Agencia Tributaria, que es la modalidad llamada VERI*FACTU, es voluntario: puedes optar por conservar los registros tú mismo.</p>
+  <p>La Agencia Tributaria ofrece además una aplicación de facturación básica y gratuita en su sede electrónica, pensada para quien emite pocas facturas.</p>
+  <p class="note">Elaborado a partir de las <a href="https://sede.agenciatributaria.gob.es/Sede/iva/sistemas-informaticos-facturacion-verifactu/preguntas-frecuentes/cuestiones-generales-ambitos-aplicacion.html" target="_blank" rel="noopener">preguntas frecuentes de la Agencia Tributaria</a> sobre los sistemas informáticos de facturación. Revisado el 3 de octubre de 2026. La norma ya ha cambiado de fechas antes: confirma tu caso en la web de la Agencia Tributaria o con tu gestoría. Este test es orientativo y no es asesoramiento fiscal.</p>
+</main>
+<script src="lib.js"></script>
+<script src="common.js"></script>
+<script>
+const val = (n) => document.querySelector(`[name=${n}]:checked`).value;
+const fecha = (iso) => new Intl.DateTimeFormat('es-ES', { dateStyle: 'long' }).format(new Date(iso + 'T12:00:00'));
+const hoy = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); };
+function plazo(iso) {
+  const n = Lib.daysBetween(hoy(), iso);
+  return n > 0 ? `Tienes que tener el programa adaptado antes del ${fecha(iso)}: quedan ${n} días.` : `El plazo terminó el ${fecha(iso)}: tu programa ya tiene que estar adaptado.`;
+}
+const TEXT = {
+  foral: ['No te afecta el reglamento estatal', 'Con domicilio fiscal en el País Vasco o Navarra te riges por la normativa foral, que tiene sus propios sistemas de control de la facturación. Consulta el de tu hacienda foral.'],
+  sii: ['No te afecta', 'Quien está en el SII queda fuera de este reglamento: ya envía sus facturas a la Agencia Tributaria por esa vía.'],
+  'no-invoices': ['No te afecta mientras no emitas facturas', 'El reglamento se aplica a los programas con los que se expiden facturas. Si en algún caso tienes que emitir una, por ejemplo a otro empresario, y usas un programa para hacerla, ese programa sí tiene que cumplir.'],
+  manual: ['No te afecta', 'Si haces todas tus facturas a mano no usas un sistema informático de facturación. Si algún día pasas a un programa, tendrá que estar adaptado y toda tu facturación deberá hacerse con él.']
+};
+function calc() {
+  const r = Lib.verifactu({ taxpayer: val('taxpayer'), territory: val('territory'), sii: val('sii') === 'si', method: val('method') });
+  const out = $('#out');
+  let title, detail;
+  if (r.obliged === 'yes') {
+    title = 'Sí, te afecta';
+    detail = `${plazo(r.deadline)} Pregunta a tu proveedor si su programa ya cumple el reglamento. Enviar los registros a Hacienda es opcional.`;
+  } else if (r.obliged === 'depends') {
+    title = 'Depende de cómo uses Word o Excel';
+    detail = `Según la Agencia Tributaria, no te afecta si los usas solo para escribir la factura, imprimirla y guardarla. Sí te afecta si la hoja de cálculo procesa los datos, por ejemplo con macros que generan el libro registro de facturas. En ese caso: ${plazo(r.deadline).toLowerCase()}`;
+  } else {
+    [title, detail] = TEXT[r.reason];
+  }
+  out.className = 'verdict ' + (r.obliged === 'yes' ? 'bad' : r.obliged === 'no' ? 'ok' : '');
+  out.textContent = title;
+  const s = document.createElement('small');
+  s.textContent = detail;
+  out.append(s);
+}
+document.addEventListener('input', calc);
+calc();
+</script>
+</body>
+</html>

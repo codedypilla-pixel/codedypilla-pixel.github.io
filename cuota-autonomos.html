@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Calculadora de cuota de autónomos 2026 por tramos de rendimientos</title>
+<meta name="description" content="Calcula tu cuota de autónomos en 2026 según tus rendimientos netos: tramo, base de cotización y cuota mínima y máxima al mes, con la tabla oficial completa. Gratis y sin registro.">
+<link rel="canonical" href="https://codedypilla-pixel.github.io/cuota-autonomos.html">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <h1>Calculadora de cuota de autónomos 2026</h1>
+  <p class="lead">Escribe lo que ganas al mes y te digo en qué tramo estás y cuánto pagas de cuota a la Seguridad Social.</p>
+  <section class="card">
+    <label for="net">Rendimiento neto al mes (€): ingresos menos gastos, sin restar la cuota de autónomos</label>
+    <input id="net" type="number" inputmode="decimal" min="0" step="50" value="1500">
+    <label>Tipo de autónomo</label>
+    <div class="seg">
+      <label><input type="radio" name="kind" value="fisica" checked>Persona física</label>
+      <label><input type="radio" name="kind" value="societario">Societario</label>
+    </div>
+    <div class="res">
+      <div><span id="lComp">Rendimiento computable</span><span id="oComp"></span></div>
+      <div><span>Tramo</span><span id="oTramo"></span></div>
+      <div><span>Base mínima de cotización</span><span id="oBase"></span></div>
+      <div><span>Cuota máxima del tramo</span><span id="oMax"></span></div>
+      <div><span>Cuota mínima al año</span><span id="oYear"></span></div>
+      <div class="big"><span>Cuota mínima al mes</span><span id="oMin"></span></div>
+    </div>
+    <p class="note">Dentro de tu tramo puedes elegir una base mayor para tener mejores prestaciones; por eso hay una cuota mínima y una máxima. Los autónomos societarios y los familiares colaboradores tienen además una base mínima propia, que puede dar una cuota superior a la que sale aquí.</p>
+  </section>
+
+  <h2>Tabla de cuotas de autónomos 2026</h2>
+  <div class="card" style="overflow-x:auto;padding:8px">
+    <table id="tabla" style="width:100%;border-collapse:collapse;font-size:14px"></table>
+  </div>
+
+  <h2>Cómo se calcula</h2>
+  <p>La Seguridad Social parte de tus rendimientos netos anuales, que son tus ingresos menos tus gastos deducibles, sumando las cuotas de autónomos que hayas pagado si tributas en estimación directa. A ese importe le resta un 7 % por gastos genéricos, o un 3 % si eres autónomo societario, y lo divide entre los meses de alta.</p>
+  <p>El resultado te coloca en uno de los 15 tramos. La cuota es el 31,5 % de la base que elijas dentro de tu tramo: 28,30 % de contingencias comunes, 1,30 % de contingencias profesionales, 0,90 % de cese de actividad, 0,10 % de formación profesional y 0,90 % del mecanismo de equidad intergeneracional.</p>
+  <p>La cuota que pagas durante el año es provisional. Cuando Hacienda comunica tus rendimientos reales, la Seguridad Social regulariza: te devuelve lo pagado de más o te reclama la diferencia.</p>
+  <p>Si es tu primera alta como autónomo, puede corresponderte una cuota reducida durante los primeros meses. Consulta los requisitos en la Seguridad Social.</p>
+  <p class="note">Bases y tipos de cotización publicados por la <a href="https://www.seg-social.es/wps/portal/wss/internet/Trabajadores/CotizacionRecaudacionTrabajadores/36537" target="_blank" rel="noopener">Seguridad Social</a> para 2026. Revisado el 3 de octubre de 2026. Cálculo orientativo: no sustituye a la información de la Seguridad Social ni al consejo de tu gestoría.</p>
+</main>
+<script src="lib.js"></script>
+<script src="common.js"></script>
+<script>
+// The reduced table ends just below 1.166,70 €; show the official figure rather than the internal 1.166,69.
+const lim = (x) => (x === 1166.69 ? 1166.7 : x);
+const rango = (r) => (r.from === 0 ? `Hasta ${eur(r.to)}` : r.to === Infinity ? `Más de ${eur(r.from)}` : `De ${eur(lim(r.from))} a ${eur(lim(r.to))}`);
+// One representative income per bracket, used to build the table from the same function as the calculator.
+const SAMPLES = [0, 700, 1000, 1200, 1400, 1600, 1800, 1900, 2100, 2500, 3000, 3400, 3800, 5000, 7000];
+function tabla(actual) {
+  $('#tabla').innerHTML = '<tr><th style="text-align:left;padding:6px">Tramo</th><th style="text-align:left;padding:6px">Rendimiento neto al mes</th><th style="text-align:right;padding:6px">Cuota mínima</th><th style="text-align:right;padding:6px">Cuota máxima</th></tr>' +
+    SAMPLES.map((s) => Lib.autonomoQuota(s / 0.93)).map((r) => `<tr style="${r.tramo === actual ? 'background:#e4f2ee;font-weight:600' : ''}">
+      <td style="padding:6px;border-top:1px solid var(--line)">${r.tramo}</td>
+      <td style="padding:6px;border-top:1px solid var(--line)">${rango(r)}</td>
+      <td style="padding:6px;border-top:1px solid var(--line);text-align:right">${eur(r.quotaMin)}</td>
+      <td style="padding:6px;border-top:1px solid var(--line);text-align:right">${eur(r.quotaMax)}</td></tr>`).join('');
+}
+function calc() {
+  const soc = document.querySelector('[name=kind]:checked').value === 'societario';
+  const r = Lib.autonomoQuota(Math.max(Lib.num($('#net').value), 0), soc);
+  $('#lComp').textContent = `Rendimiento computable (menos el ${soc ? 3 : 7} %)`;
+  $('#oComp').textContent = eur(r.computable);
+  $('#oTramo').textContent = `${r.tramo} de 15 · ${rango(r)}`;
+  $('#oBase').textContent = eur(r.baseMin);
+  $('#oMax').textContent = eur(r.quotaMax);
+  $('#oYear').textContent = eur(Lib.r2(r.quotaMin * 12));
+  $('#oMin').textContent = eur(r.quotaMin);
+  tabla(r.tramo);
+}
+document.addEventListener('input', calc);
+calc();
+</script>
+</body>
+</html>

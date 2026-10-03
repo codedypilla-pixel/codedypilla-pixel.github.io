@@ -4,6 +4,8 @@ Calculadoras y generadores sencillos para autónomos y pequeños negocios. Sin r
 
 **Web:** https://codedypilla-pixel.github.io/
 
+- [¿Estoy obligado a Verifactu?](https://codedypilla-pixel.github.io/verifactu-obligado.html)
+- [Cuota de autónomos 2026](https://codedypilla-pixel.github.io/cuota-autonomos.html)
 - [Presupuestos en PDF](https://codedypilla-pixel.github.io/presupuesto-rapido/)
 - [Calculadora de IVA e IRPF](https://codedypilla-pixel.github.io/calculadora-iva.html)
 - [Calculadora de precio por hora](https://codedypilla-pixel.github.io/calculadora-precio-hora.html)

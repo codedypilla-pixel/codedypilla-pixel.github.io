@@ -161,6 +161,43 @@
     };
   }
 
-  const Lib = { r2, num, dniLetter, checkId, checkIban, vat, hourlyRate, margin, priceForMargin, addDays, daysBetween, wifiPayload, numberToWords, eurosToWords, percentOf, whatPercent, percentChange, discount, lateInterest, breakEven, surcharge, textStats };
+  // RETA contribution brackets for 2026 (Seguridad Social): [upper limit of monthly net income, minimum base, maximum base].
+  // The first three rows are the "tabla reducida"; the third one ends just below 1,166.70.
+  const RETA_2026 = [
+    [670, 653.59, 718.94], [900, 718.95, 900], [1166.69, 849.67, 1166.70],
+    [1300, 950.98, 1300], [1500, 960.78, 1500], [1700, 960.78, 1700], [1850, 1143.79, 1850], [2030, 1209.15, 2030],
+    [2330, 1274.51, 2330], [2760, 1356.21, 2760], [3190, 1437.91, 3190], [3620, 1519.61, 3620], [4050, 1601.31, 4050],
+    [6000, 1732.03, 5101.20], [Infinity, 1928.10, 5101.20]
+  ];
+  // 28.30 common + 1.30 professional + 0.90 cessation + 0.10 training + 0.90 MEI.
+  const RETA_RATE_2026 = 31.5;
+  // netMonthly: income minus expenses, before subtracting the contribution itself. The generic-expenses
+  // deduction is 7 % (3 % for company owners/administrators).
+  function autonomoQuota(netMonthly, societario = false) {
+    const computable = r2(Math.max(netMonthly, 0) * (1 - (societario ? 3 : 7) / 100));
+    const i = RETA_2026.findIndex((t) => computable <= t[0]);
+    const [upper, baseMin, baseMax] = RETA_2026[i];
+    return {
+      computable, tramo: i + 1, reducida: i < 3,
+      from: i === 0 ? 0 : RETA_2026[i - 1][0], to: upper,
+      baseMin, baseMax,
+      quotaMin: r2(baseMin * RETA_RATE_2026 / 100), quotaMax: r2(baseMax * RETA_RATE_2026 / 100)
+    };
+  }
+
+  // Scope of the Spanish invoicing-software regulation (RD 1007/2023, "Verifactu"), following the AEAT FAQ's
+  // four exclusions. Deadlines as extended by Real Decreto-ley 15/2025.
+  const VERIFACTU_DEADLINE = { sociedad: '2027-01-01', autonomo: '2027-07-01' };
+  function verifactu({ territory, sii, method, taxpayer }) {
+    const deadline = VERIFACTU_DEADLINE[taxpayer] || VERIFACTU_DEADLINE.autonomo;
+    if (territory === 'foral') return { obliged: 'no', reason: 'foral', deadline: null };
+    if (sii) return { obliged: 'no', reason: 'sii', deadline: null };
+    if (method === 'none') return { obliged: 'no', reason: 'no-invoices', deadline: null };
+    if (method === 'manual') return { obliged: 'no', reason: 'manual', deadline: null };
+    if (method === 'office') return { obliged: 'depends', reason: 'office', deadline };
+    return { obliged: 'yes', reason: 'software', deadline };
+  }
+
+  const Lib = { r2, num, autonomoQuota, RETA_RATE_2026, verifactu, dniLetter, checkId, checkIban, vat, hourlyRate, margin, priceForMargin, addDays, daysBetween, wifiPayload, numberToWords, eurosToWords, percentOf, whatPercent, percentChange, discount, lateInterest, breakEven, surcharge, textStats };
   if (typeof module !== 'undefined' && module.exports) module.exports = Lib; else g.Lib = Lib;
 })(typeof globalThis !== 'undefined' ? globalThis : this);
