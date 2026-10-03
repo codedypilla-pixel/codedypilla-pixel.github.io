@@ -1,7 +1,7 @@
 // Shared page chrome: header, links to the other tools, tip box and footer.
 const TOOLS = [
-  { href: '/verifactu-obligado.html', t: '¿Estoy obligado a Verifactu?', d: 'Test de cuatro preguntas: si te afecta, desde cuándo y qué hacer.' },
-  { href: '/cuota-autonomos.html', t: 'Cuota de autónomos 2026', d: 'Tu tramo y tu cuota mensual según lo que ganas, con la tabla oficial.' },
+  { href: '/verifactu-obligado.html', v: 'ZminobVQWaU', t: '¿Estoy obligado a Verifactu?', d: 'Test de cuatro preguntas: si te afecta, desde cuándo y qué hacer.' },
+  { href: '/cuota-autonomos.html', v: 'BVCKPpie9lE', t: 'Cuota de autónomos 2026', d: 'Tu tramo y tu cuota mensual según lo que ganas, con la tabla oficial.' },
   { href: '/presupuesto-rapido/', v: 'Ea9s3TWvJQw', t: 'Presupuestos en PDF', d: 'Crea un presupuesto profesional y guárdalo en PDF.' },
   { href: '/calculadora-iva.html', v: 'e00s7SLb8Is', t: 'Calculadora de IVA e IRPF', d: 'Añade o quita el IVA y calcula la retención de una factura.' },
   { href: '/calculadora-precio-hora.html', v: 'dJ7DoIOUpik', t: 'Calculadora de precio por hora', d: 'Cuánto cobrar por hora para llegar al sueldo que quieres.' },
