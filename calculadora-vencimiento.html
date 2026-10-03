@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Calculadora de vencimiento de facturas a 30, 60 y 90 días</title>
+<meta name="description" content="Calcula la fecha de vencimiento de una factura a 30, 60, 90 días o el plazo que quieras, y cuántos días faltan o lleva de retraso. Gratis y sin registro.">
+<link rel="canonical" href="https://codedypilla-pixel.github.io/calculadora-vencimiento.html">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <h1>Calculadora de vencimiento de facturas</h1>
+  <p class="lead">Pon la fecha de la factura y el plazo de pago, y te digo qué día vence y cuánto falta.</p>
+  <section class="card">
+    <div class="grid">
+      <div><label for="date">Fecha de la factura</label><input id="date" type="date"></div>
+      <div><label for="days">Plazo de pago (días naturales)</label><input id="days" type="number" inputmode="numeric" min="0" step="1" value="30"></div>
+    </div>
+    <div class="seg" style="margin-top:10px">
+      <label><input type="radio" name="q" value="30" checked>30 días</label>
+      <label><input type="radio" name="q" value="60">60 días</label>
+      <label><input type="radio" name="q" value="90">90 días</label>
+    </div>
+    <div class="res">
+      <div class="big" style="border-top:0;margin:0;padding-top:0"><span>Vence el</span><span id="oDue"></span></div>
+      <div><span>Situación a día de hoy</span><span id="oLeft"></span></div>
+    </div>
+    <p class="note" id="weekend" hidden>Cae en fin de semana: lo normal es que el pago llegue el siguiente día hábil.</p>
+  </section>
+  <h2>Cómo se cuenta el plazo</h2>
+  <p>El plazo se cuenta en días naturales desde la fecha de la factura, incluyendo sábados, domingos y festivos. Una factura del 3 de octubre a 30 días vence el 2 de noviembre.</p>
+  <p>En España, la ley de morosidad fija un plazo de pago entre empresas de 30 días, que las partes pueden ampliar por contrato hasta un máximo de 60. Esta calculadora solo suma días: no tiene en cuenta los festivos de tu localidad ni lo que diga tu contrato.</p>
+</main>
+<script src="lib.js"></script>
+<script src="common.js"></script>
+<script>
+const todayIso = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); };
+$('#date').value = todayIso();
+function calc() {
+  const days = Math.max(Math.round(Lib.num($('#days').value)), 0);
+  document.querySelectorAll('[name=q]').forEach((r) => { r.checked = +r.value === days; });
+  const due = Lib.addDays($('#date').value, days);
+  if (!due) { $('#oDue').textContent = '—'; $('#oLeft').textContent = '—'; $('#weekend').hidden = true; return; }
+  const d = new Date(due + 'T12:00:00');
+  $('#oDue').textContent = new Intl.DateTimeFormat('es-ES', { dateStyle: 'full' }).format(d);
+  $('#weekend').hidden = d.getDay() !== 0 && d.getDay() !== 6;
+  const left = Lib.daysBetween(todayIso(), due);
+  $('#oLeft').textContent = left > 0 ? `Faltan ${left} día${left === 1 ? '' : 's'}` : left === 0 ? 'Vence hoy' : `Vencida hace ${-left} día${left === -1 ? '' : 's'}`;
+}
+document.querySelectorAll('[name=q]').forEach((r) => r.addEventListener('change', () => { $('#days').value = r.value; calc(); }));
+$('#date').addEventListener('input', calc);
+$('#days').addEventListener('input', calc);
+calc();
+</script>
+</body>
+</html>

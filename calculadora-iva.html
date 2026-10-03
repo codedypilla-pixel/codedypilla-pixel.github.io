@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Calculadora de IVA e IRPF: añadir o quitar el IVA de un importe</title>
+<meta name="description" content="Calcula el IVA de cualquier importe: añade el 21 %, 10 % o 4 %, o quítalo de un precio final. Incluye la retención de IRPF de una factura de autónomo. Gratis y sin registro.">
+<link rel="canonical" href="https://codedypilla-pixel.github.io/calculadora-iva.html">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <h1>Calculadora de IVA e IRPF</h1>
+  <p class="lead">Añade el IVA a un importe o sácalo de un precio final, con la retención de IRPF si la necesitas.</p>
+  <section class="card">
+    <label for="amount">Importe (€)</label>
+    <input id="amount" type="number" inputmode="decimal" min="0" step="0.01" value="100">
+    <label>El importe que he escrito es</label>
+    <div class="seg">
+      <label><input type="radio" name="mode" value="base" checked>Sin IVA (base)</label>
+      <label><input type="radio" name="mode" value="total">Con IVA incluido</label>
+    </div>
+    <div class="grid">
+      <div>
+        <label for="rate">Tipo de IVA</label>
+        <select id="rate"><option value="21">21 % (general)</option><option value="10">10 % (reducido)</option><option value="4">4 % (superreducido)</option><option value="0">0 % (exento)</option><option value="x">Otro…</option></select>
+      </div>
+      <div id="rateXBox" hidden>
+        <label for="rateX">Otro tipo (%)</label>
+        <input id="rateX" type="number" inputmode="decimal" min="0" max="100" step="0.01" value="7">
+      </div>
+      <div>
+        <label for="irpf">Retención de IRPF</label>
+        <select id="irpf"><option value="0">Sin retención</option><option value="15">15 %</option><option value="7">7 % (nuevos autónomos)</option></select>
+      </div>
+    </div>
+    <div class="res">
+      <div><span>Base imponible</span><span id="oBase"></span></div>
+      <div><span id="lTax">IVA</span><span id="oTax"></span></div>
+      <div id="rowIrpf"><span id="lIrpf">Retención IRPF</span><span id="oIrpf"></span></div>
+      <div class="big"><span id="lTotal">Total</span><span id="oTotal"></span></div>
+    </div>
+  </section>
+  <h2>Cómo se calcula el IVA</h2>
+  <p>Para <strong>añadir el IVA</strong> se multiplica la base por el tipo: una base de 100 € al 21 % tiene 21 € de IVA y un total de 121 €.</p>
+  <p>Para <strong>quitar el IVA</strong> de un precio final no se resta el 21 %: se divide entre 1,21. Un precio de 121 € con IVA incluido tiene una base de 100 €.</p>
+  <p>La <strong>retención de IRPF</strong> se calcula sobre la base, no sobre el total. En una factura de 1.000 € de base con 21 % de IVA y 15 % de IRPF, el cliente paga 1.060 €: 1.000 + 210 − 150.</p>
+</main>
+<script src="lib.js"></script>
+<script src="common.js"></script>
+<script>
+function calc() {
+  const sel = $('#rate').value;
+  $('#rateXBox').hidden = sel !== 'x';
+  const rate = Math.max(Lib.num(sel === 'x' ? $('#rateX').value : sel), 0);
+  const irpf = Lib.num($('#irpf').value);
+  const r = Lib.vat(Math.max(Lib.num($('#amount').value), 0), rate, document.querySelector('[name=mode]:checked').value === 'total', irpf);
+  $('#oBase').textContent = eur(r.base);
+  $('#lTax').textContent = `IVA (${pct(rate)})`;
+  $('#oTax').textContent = eur(r.tax);
+  $('#rowIrpf').hidden = !irpf;
+  $('#lIrpf').textContent = `Retención IRPF (${pct(irpf)})`;
+  $('#oIrpf').textContent = '−' + eur(r.withheld);
+  $('#lTotal').textContent = irpf ? 'Total a cobrar' : 'Total con IVA';
+  $('#oTotal').textContent = eur(r.payable);
+}
+document.addEventListener('input', calc);
+calc();
+</script>
+</body>
+</html>

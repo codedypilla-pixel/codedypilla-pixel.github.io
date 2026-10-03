@@ -1,0 +1,19 @@
+# Herramientas gratis para autónomos
+
+Calculadoras y generadores sencillos para autónomos y pequeños negocios. Sin registro, sin anuncios y sin servidor: todo se calcula en el navegador.
+
+**Web:** https://codedypilla-pixel.github.io/
+
+- [Presupuestos en PDF](https://codedypilla-pixel.github.io/presupuesto-rapido/)
+- [Calculadora de IVA e IRPF](https://codedypilla-pixel.github.io/calculadora-iva.html)
+- [Calculadora de precio por hora](https://codedypilla-pixel.github.io/calculadora-precio-hora.html)
+- [Calculadora de margen](https://codedypilla-pixel.github.io/calculadora-margen.html)
+- [Validar DNI, NIE, CIF e IBAN](https://codedypilla-pixel.github.io/validar-dni-nie-cif-iban.html)
+- [Vencimiento de facturas](https://codedypilla-pixel.github.io/calculadora-vencimiento.html)
+- [Generador de QR y QR de WiFi](https://codedypilla-pixel.github.io/generador-qr.html)
+
+Los resultados son orientativos y no son asesoramiento fiscal.
+
+Si te resultan útiles, puedes invitarme a un café: https://paypal.me/codedypilla
+
+Licencia MIT. Hecho con Claude Code.

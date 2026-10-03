@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Calculadora de precio por hora para autónomos y freelance</title>
+<meta name="description" content="Calcula cuánto cobrar por hora como autónomo o freelance para llegar al sueldo neto que quieres, contando gastos, impuestos, vacaciones y horas no facturables. Gratis.">
+<link rel="canonical" href="https://codedypilla-pixel.github.io/calculadora-precio-hora.html">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <h1>Calculadora de precio por hora</h1>
+  <p class="lead">Cuánto tienes que cobrar por hora para llegar al sueldo que quieres, contando lo que no se ve: gastos, impuestos, vacaciones y horas que no facturas.</p>
+  <section class="card">
+    <div class="grid">
+      <div><label for="net">Sueldo neto que quieres al mes (€)</label><input id="net" type="number" inputmode="decimal" min="0" step="50" value="2000"></div>
+      <div><label for="costs">Gastos fijos al mes (€)</label><input id="costs" type="number" inputmode="decimal" min="0" step="10" value="400"></div>
+      <div><label for="tax">IRPF estimado (%)</label><input id="tax" type="number" inputmode="decimal" min="0" max="95" step="1" value="20"></div>
+      <div><label for="vac">Semanas sin trabajar al año</label><input id="vac" type="number" inputmode="decimal" min="0" max="52" step="1" value="5"></div>
+      <div><label for="days">Días de trabajo por semana</label><input id="days" type="number" inputmode="decimal" min="0" max="7" step="0.5" value="5"></div>
+      <div><label for="hours">Horas de trabajo al día</label><input id="hours" type="number" inputmode="decimal" min="0" max="24" step="0.5" value="8"></div>
+      <div><label for="bill">Horas que facturas (%)</label><input id="bill" type="number" inputmode="decimal" min="0" max="100" step="5" value="60"></div>
+    </div>
+    <div class="res">
+      <div><span>Tienes que facturar al año</span><span id="oYear"></span></div>
+      <div><span>Horas facturables al año</span><span id="oHours"></span></div>
+      <div><span>Precio por jornada</span><span id="oDay"></span></div>
+      <div class="big"><span>Precio por hora (sin IVA)</span><span id="oHour"></span></div>
+    </div>
+    <p class="note">En gastos fijos incluye la cuota de autónomos, gestoría, programas, seguros, alquiler y material.</p>
+  </section>
+  <h2>Por qué no basta con dividir el sueldo entre las horas</h2>
+  <p>Un asalariado cobra todas las horas que está en su puesto. Un autónomo solo cobra las que factura: el tiempo de buscar clientes, hacer presupuestos, facturar o formarse no lo paga nadie. Por eso lo habitual es facturar entre el 50 % y el 70 % de las horas trabajadas.</p>
+  <p>La calculadora suma lo que necesitas ingresar al año (tu sueldo neto antes de IRPF más tus gastos) y lo divide entre las horas que de verdad vas a facturar. El precio resultante no incluye el IVA, que se añade en la factura.</p>
+  <p>El IRPF real depende de tus ingresos y de tu situación personal. Usa un porcentaje aproximado y revisa el resultado con tu gestoría.</p>
+</main>
+<script src="lib.js"></script>
+<script src="common.js"></script>
+<script>
+function calc() {
+  const v = (id) => Math.max(Lib.num($(id).value), 0);
+  const r = Lib.hourlyRate({ net: v('#net'), costs: v('#costs'), taxPct: v('#tax'), vacWeeks: Math.min(v('#vac'), 52), daysWeek: Math.min(v('#days'), 7), hoursDay: Math.min(v('#hours'), 24), billablePct: Math.min(v('#bill'), 100) });
+  $('#oYear').textContent = eur(r.yearly);
+  $('#oHours').textContent = new Intl.NumberFormat('es-ES', { maximumFractionDigits: 0 }).format(r.hours) + ' h';
+  $('#oDay').textContent = r.hours ? eur(r.day) : '—';
+  $('#oHour').textContent = r.hours ? eur(r.hour) : '—';
+}
+document.addEventListener('input', calc);
+calc();
+</script>
+</body>
+</html>

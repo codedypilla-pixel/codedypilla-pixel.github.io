@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Validar DNI, NIE, CIF e IBAN y calcular la letra del DNI</title>
+<meta name="description" content="Comprueba si un DNI, NIE, CIF o IBAN es correcto y calcula la letra del DNI a partir del número. Gratis, sin registro y sin enviar el dato a ningún servidor.">
+<link rel="canonical" href="https://codedypilla-pixel.github.io/validar-dni-nie-cif-iban.html">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <h1>Validar DNI, NIE, CIF e IBAN</h1>
+  <p class="lead">Comprueba que un documento o una cuenta bancaria están bien escritos antes de ponerlos en una factura o hacer una transferencia.</p>
+  <section class="card">
+    <label for="doc">DNI, NIE o CIF</label>
+    <input id="doc" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="12345678Z">
+    <div class="verdict" id="vDoc">Escribe un documento. Si pones un DNI sin letra, la calculo.</div>
+  </section>
+  <section class="card">
+    <label for="iban">IBAN</label>
+    <input id="iban" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ES91 2100 0418 4502 0005 1332">
+    <div class="verdict" id="vIban">Escribe un IBAN, con o sin espacios.</div>
+  </section>
+  <p class="note">La comprobación es matemática: confirma que el número está bien formado, no que el documento o la cuenta existan ni a quién pertenecen. Lo que escribes no sale de tu navegador.</p>
+  <h2>Cómo se calcula la letra del DNI</h2>
+  <p>Se divide el número del DNI entre 23 y el resto indica la posición de la letra en la secuencia TRWAGMYFPDXBNJZSQVHLCKE. En el NIE, la letra inicial se sustituye antes por un número: X por 0, Y por 1 y Z por 2.</p>
+  <h2>Cómo se comprueba un IBAN</h2>
+  <p>Los dos dígitos que siguen al código de país son de control. Se calculan con el resto de dividir el número entre 97, de modo que casi cualquier error al copiar una cifra o intercambiar dos se detecta. Un IBAN español tiene 24 caracteres y empieza por ES.</p>
+</main>
+<script src="lib.js"></script>
+<script src="common.js"></script>
+<script>
+function show(el, cls, title, detail) {
+  el.className = 'verdict' + (cls ? ' ' + cls : '');
+  el.textContent = title;
+  if (detail) { const s = document.createElement('small'); s.textContent = detail; el.append(s); }
+}
+function doc() {
+  const v = $('#doc').value.trim(), el = $('#vDoc');
+  if (!v) return show(el, '', 'Escribe un documento. Si pones un DNI sin letra, la calculo.');
+  const r = Lib.checkId(v);
+  if (!r.type) return show(el, 'bad', 'No tiene formato de DNI, NIE ni CIF', 'Un DNI son 8 cifras y una letra; un NIE empieza por X, Y o Z; un CIF empieza por una letra y tiene 7 cifras y un carácter de control.');
+  if (r.valid === null) return show(el, 'ok', `${r.type} completo: ${r.full}`, `El carácter de control que le corresponde es ${r.control}.`);
+  if (r.valid) return show(el, 'ok', `${r.type} correcto`, r.full);
+  show(el, 'bad', `${r.type} incorrecto`, `Con ese número, el carácter de control debería ser ${r.control}: ${r.full}. Revisa que no haya una cifra equivocada.`);
+}
+function iban() {
+  const v = $('#iban').value.trim(), el = $('#vIban');
+  if (!v) return show(el, '', 'Escribe un IBAN, con o sin espacios.');
+  const r = Lib.checkIban(v);
+  if (r.valid) return show(el, 'ok', 'IBAN correcto', r.formatted + (r.knownCountry ? '' : ' · No tengo la longitud oficial de ese país; solo he comprobado los dígitos de control.'));
+  if (r.reason === 'format') return show(el, 'bad', 'No tiene formato de IBAN', 'Empieza por dos letras de país y dos dígitos de control, por ejemplo ES91…');
+  if (r.reason === 'length') return show(el, 'bad', 'IBAN con longitud incorrecta', `Un IBAN de ${r.country} tiene ${r.want} caracteres y este tiene ${r.got}.`);
+  show(el, 'bad', 'IBAN incorrecto', 'Los dígitos de control no cuadran: hay alguna cifra equivocada o cambiada de sitio.');
+}
+$('#doc').addEventListener('input', doc);
+$('#iban').addEventListener('input', iban);
+</script>
+</body>
+</html>

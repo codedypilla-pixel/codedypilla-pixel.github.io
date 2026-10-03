@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Generador de códigos QR gratis y QR de WiFi, sin registro</title>
+<meta name="description" content="Crea un código QR de un enlace, un texto o tu red WiFi y descárgalo en PNG. Gratis, sin registro, sin caducidad y sin enviar tu contraseña a ningún servidor.">
+<link rel="canonical" href="https://codedypilla-pixel.github.io/generador-qr.html">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <h1>Generador de códigos QR</h1>
+  <p class="lead">Crea un QR de un enlace, un texto o tu WiFi y descárgalo. No caduca y no pasa por ningún servidor.</p>
+  <section class="card">
+    <div class="seg">
+      <label><input type="radio" name="mode" value="text" checked>Enlace o texto</label>
+      <label><input type="radio" name="mode" value="wifi">Red WiFi</label>
+    </div>
+    <div id="textBox">
+      <label for="text">Enlace o texto</label>
+      <textarea id="text" rows="3" placeholder="https://…"></textarea>
+    </div>
+    <div id="wifiBox" hidden>
+      <div class="grid">
+        <div><label for="ssid">Nombre de la red (SSID)</label><input id="ssid" autocomplete="off" spellcheck="false"></div>
+        <div><label for="pass">Contraseña</label><input id="pass" autocomplete="off" spellcheck="false"></div>
+        <div><label for="sec">Seguridad</label><select id="sec"><option value="WPA">WPA / WPA2 / WPA3</option><option value="WEP">WEP</option><option value="nopass">Abierta, sin contraseña</option></select></div>
+      </div>
+    </div>
+    <div id="qr"></div>
+    <p class="note" id="msg">Escribe algo para generar el código.</p>
+    <a class="btn" id="dl" download="codigo-qr.png" hidden>Descargar PNG</a>
+  </section>
+  <h2>QR que no caducan</h2>
+  <p>Muchos generadores crean un QR «dinámico» que apunta a su propia web y deja de funcionar si no pagas. Este crea un QR estático: el enlace o el texto van escritos dentro del propio código, así que funciona siempre y no depende de nadie.</p>
+  <h2>QR para compartir el WiFi</h2>
+  <p>Al escanear un QR de WiFi con la cámara del móvil, el teléfono se conecta a la red sin teclear la contraseña. Es práctico para clientes en un local, un alojamiento o una oficina. El nombre de la red debe escribirse exactamente igual, con sus mayúsculas.</p>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="lib.js"></script>
+<script src="common.js"></script>
+<script>
+function payload() {
+  if (document.querySelector('[name=mode]:checked').value === 'text') return $('#text').value.trim();
+  const ssid = $('#ssid').value;
+  return ssid ? Lib.wifiPayload(ssid, $('#pass').value, $('#sec').value) : '';
+}
+function render() {
+  const wifi = document.querySelector('[name=mode]:checked').value === 'wifi';
+  $('#textBox').hidden = wifi;
+  $('#wifiBox').hidden = !wifi;
+  const box = $('#qr'), msg = $('#msg'), dl = $('#dl'), data = payload();
+  box.textContent = '';
+  dl.hidden = true;
+  msg.hidden = false;
+  if (!data) { msg.textContent = 'Escribe algo para generar el código.'; return; }
+  if (typeof QRCode === 'undefined') { msg.textContent = 'No se ha podido cargar el generador. Comprueba tu conexión y recarga la página.'; return; }
+  try {
+    new QRCode(box, { text: data, width: 512, height: 512, correctLevel: QRCode.CorrectLevel.M });
+  } catch {
+    box.textContent = '';
+    msg.textContent = 'El texto es demasiado largo para un código QR. Acórtalo.';
+    return;
+  }
+  msg.hidden = true;
+  const canvas = box.querySelector('canvas');
+  if (canvas) { dl.href = canvas.toDataURL('image/png'); dl.hidden = false; }
+}
+document.addEventListener('input', render);
+render();
+</script>
+</body>
+</html>

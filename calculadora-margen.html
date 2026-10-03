@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Calculadora de margen de beneficio y precio de venta</title>
+<meta name="description" content="Calcula el margen de beneficio y el recargo sobre el coste de un producto, o el precio de venta necesario para conseguir el margen que quieres. Gratis y sin registro.">
+<link rel="canonical" href="https://codedypilla-pixel.github.io/calculadora-margen.html">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <h1>Calculadora de margen de beneficio</h1>
+  <p class="lead">Averigua qué margen estás ganando, o a qué precio tienes que vender para ganar el margen que quieres.</p>
+  <section class="card">
+    <label>Quiero calcular</label>
+    <div class="seg">
+      <label><input type="radio" name="mode" value="margin" checked>El margen que gano</label>
+      <label><input type="radio" name="mode" value="price">El precio de venta</label>
+    </div>
+    <div class="grid">
+      <div><label for="cost">Coste (€, sin IVA)</label><input id="cost" type="number" inputmode="decimal" min="0" step="0.01" value="60"></div>
+      <div id="priceBox"><label for="price">Precio de venta (€, sin IVA)</label><input id="price" type="number" inputmode="decimal" min="0" step="0.01" value="100"></div>
+      <div id="wantBox" hidden><label for="want">Margen que quiero (%)</label><input id="want" type="number" inputmode="decimal" min="0" max="99.99" step="0.5" value="40"></div>
+    </div>
+    <div class="res">
+      <div><span>Precio de venta</span><span id="oPrice"></span></div>
+      <div><span>Beneficio</span><span id="oProfit"></span></div>
+      <div><span>Recargo sobre el coste</span><span id="oMarkup"></span></div>
+      <div class="big"><span>Margen sobre la venta</span><span id="oMargin"></span></div>
+    </div>
+    <p class="note" id="err" hidden>Un margen del 100 % o más es imposible: el coste tendría que ser cero.</p>
+  </section>
+  <h2>Margen y recargo no son lo mismo</h2>
+  <p>El <strong>margen</strong> es el beneficio dividido entre el precio de venta. El <strong>recargo</strong> (o <em>markup</em>) es el beneficio dividido entre el coste. Si compras a 60 € y vendes a 100 €, ganas 40 €: un margen del 40 % y un recargo del 66,67 %.</p>
+  <p>Confundirlos es un error frecuente: si quieres un margen del 40 % y solo subes el coste un 40 %, venderás a 84 € y tu margen real será del 28,57 %. Para conseguir un margen, el precio se calcula dividiendo el coste entre (1 − margen).</p>
+</main>
+<script src="lib.js"></script>
+<script src="common.js"></script>
+<script>
+function calc() {
+  const byPrice = document.querySelector('[name=mode]:checked').value === 'price';
+  $('#priceBox').hidden = byPrice;
+  $('#wantBox').hidden = !byPrice;
+  const cost = Math.max(Lib.num($('#cost').value), 0);
+  const price = byPrice ? Lib.priceForMargin(cost, Math.max(Lib.num($('#want').value), 0)) : Math.max(Lib.num($('#price').value), 0);
+  $('#err').hidden = price !== null;
+  if (price === null) { ['#oPrice', '#oProfit', '#oMarkup', '#oMargin'].forEach((id) => { $(id).textContent = '—'; }); return; }
+  const r = Lib.margin(cost, price);
+  $('#oPrice').textContent = eur(price);
+  $('#oProfit').textContent = eur(r.profit);
+  $('#oMarkup').textContent = cost ? pct(r.markup) : '—';
+  $('#oMargin').textContent = price ? pct(r.margin) : '—';
+}
+document.addEventListener('input', calc);
+calc();
+</script>
+</body>
+</html>
