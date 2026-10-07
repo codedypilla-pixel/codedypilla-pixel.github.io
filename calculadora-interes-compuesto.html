@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Calculadora de interés compuesto con aportaciones mensuales</title>
+<meta name="description" content="Calcula cuánto crece tu ahorro con interés compuesto: capital inicial, aportación mensual, rentabilidad y años, con la evolución año a año. Gratis y sin registro.">
+<link rel="canonical" href="https://codedypilla-pixel.github.io/calculadora-interes-compuesto.html">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <h1>Calculadora de interés compuesto</h1>
+  <p class="lead">Cuánto tendrás si ahorras una cantidad cada mes y dejas que los intereses generen más intereses.</p>
+  <section class="card">
+    <div class="grid">
+      <div><label for="initial">Capital inicial (€)</label><input id="initial" type="number" inputmode="decimal" min="0" step="100" value="1000"></div>
+      <div><label for="monthly">Aportación al mes (€)</label><input id="monthly" type="number" inputmode="decimal" min="0" step="10" value="100"></div>
+      <div><label for="rate">Rentabilidad anual (%)</label><input id="rate" type="number" inputmode="decimal" step="0.1" value="5"></div>
+      <div><label for="years">Años</label><input id="years" type="number" inputmode="decimal" min="1" max="60" step="1" value="20"></div>
+    </div>
+    <div class="res">
+      <div><span>Lo que has aportado</span><span id="oPaid"></span></div>
+      <div><span>Intereses ganados</span><span id="oInt"></span></div>
+      <div class="big"><span>Capital final</span><span id="oValue"></span></div>
+    </div>
+    <p class="note">Los intereses se suman cada mes y la aportación se hace a final de mes. No descuenta impuestos, comisiones ni inflación.</p>
+  </section>
+
+  <h2>Evolución año a año</h2>
+  <div class="card" style="overflow-x:auto;padding:8px">
+    <table id="tabla" style="width:100%;border-collapse:collapse;font-size:14px"></table>
+  </div>
+
+  <h2>Qué es el interés compuesto</h2>
+  <p>Con interés simple, solo tu dinero genera intereses. Con interés compuesto, los intereses que ganas se quedan invertidos y generan intereses a su vez. La diferencia es pequeña los primeros años y muy grande a largo plazo: por eso el tiempo pesa más que la cantidad.</p>
+  <p>Una regla rápida: divide 72 entre la rentabilidad anual y tendrás los años que tarda el dinero en duplicarse. Al 6 % son unos 12 años.</p>
+  <p class="note">La rentabilidad que escribes es una hipótesis: ninguna inversión garantiza un porcentaje fijo todos los años. No es una recomendación de inversión.</p>
+</main>
+<script src="lib.js"></script>
+<script src="common.js"></script>
+<script>
+const cell = (v, right) => `<td style="padding:6px;border-top:1px solid var(--line)${right ? ';text-align:right' : ''}">${v}</td>`;
+function calc() {
+  const v = (id) => Lib.num($(id).value);
+  const r = Lib.compound(v('#initial'), Math.max(v('#monthly'), 0), v('#rate'), Math.min(Math.max(v('#years'), 0), 60));
+  $('#oPaid').textContent = eur(r.paid);
+  $('#oInt').textContent = eur(r.interest);
+  $('#oValue').textContent = eur(r.value);
+  $('#tabla').innerHTML = '<tr><th style="text-align:left;padding:6px">Año</th><th style="text-align:right;padding:6px">Aportado</th><th style="text-align:right;padding:6px">Capital</th></tr>' +
+    r.rows.map((y) => `<tr>${cell(y.year)}${cell(eur(y.paid), true)}${cell(eur(y.value), true)}</tr>`).join('');
+}
+document.addEventListener('input', calc);
+calc();
+</script>
+</body>
+</html>

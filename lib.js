@@ -198,6 +198,80 @@
     return { obliged: 'yes', reason: 'software', deadline };
   }
 
-  const Lib = { r2, num, autonomoQuota, RETA_RATE_2026, verifactu, dniLetter, checkId, checkIban, vat, hourlyRate, margin, priceForMargin, addDays, daysBetween, wifiPayload, numberToWords, eurosToWords, percentOf, whatPercent, percentChange, discount, lateInterest, breakEven, surcharge, textStats };
+  // Employee payroll for 2026 (territorio común). Social Security: 4.70 common + 1.55 unemployment (permanent
+  // contract) + 0.10 training + 0.15 MEI, on a monthly base capped at 5,101.20, plus the solidarity
+  // contribution on the pay above that cap.
+  const SS_EMPLOYEE_2026 = 6.5, SS_MAX_BASE_2026 = 5101.20;
+  const SOLIDARITY_2026 = [[5611.32, 0.19], [7651.80, 0.21], [Infinity, 0.24]];
+  // Withholding scale (state + general regional share) and the gross pay below which nothing is withheld
+  // for "situación 3" (single, or spouse with income) with 0, 1 or 2+ children.
+  const IRPF_SCALE_2026 = [[12450, 19], [20200, 24], [35200, 30], [60000, 37], [300000, 45], [Infinity, 47]];
+  const IRPF_EXEMPT_2026 = [15876, 16342, 16867];
+  // Children count half each, as when both parents share the allowance.
+  const CHILD_MIN = [1200, 1350, 2000, 2250];
+  function scaleTax(base) {
+    let tax = 0, prev = 0;
+    for (const [upper, pct] of IRPF_SCALE_2026) {
+      if (base <= prev) break;
+      tax += (Math.min(base, upper) - prev) * pct / 100;
+      prev = upper;
+    }
+    return tax;
+  }
+  function netSalary(gross, { pays = 14, children = 0 } = {}) {
+    gross = Math.max(gross, 0);
+    const monthly = gross / 12, base = Math.min(monthly, SS_MAX_BASE_2026);
+    let solidarity = 0, prev = SS_MAX_BASE_2026;
+    for (const [upper, pct] of SOLIDARITY_2026) {
+      if (monthly > prev) solidarity += (Math.min(monthly, upper) - prev) * pct / 100;
+      prev = upper;
+    }
+    const ss = r2((base * SS_EMPLOYEE_2026 / 100 + solidarity) * 12);
+    // Reduction for employment income (art. 20 LIRPF) on the income net of Social Security.
+    const netIncome = gross - ss;
+    const reduction = netIncome <= 14852 ? 7302 : netIncome <= 17673.52 ? 7302 - 1.75 * (netIncome - 14852)
+      : netIncome <= 19747.5 ? 2364.34 - 1.14 * (netIncome - 17673.52) : 0;
+    const taxable = Math.max(netIncome - 2000 - (children > 2 ? 600 : 0) - reduction, 0);
+    const allowance = 5550 + CHILD_MIN.reduce((a, m, i) => a + (i < 3 ? (children > i ? m : 0) : Math.max(children - 3, 0) * m), 0);
+    let irpf = Math.max(scaleTax(taxable) - scaleTax(allowance), 0);
+    const exempt = IRPF_EXEMPT_2026[Math.min(children, 2)];
+    if (gross <= exempt) irpf = 0;
+    else if (gross <= 35200) irpf = Math.min(irpf, (gross - exempt) * 0.43);
+    const irpfPct = gross ? r2(irpf / gross * 100) : 0;
+    irpf = r2(gross * irpfPct / 100);
+    const net = r2(gross - ss - irpf);
+    // With 14 pays the two extra ones carry no Social Security: it is all charged on the 12 monthly payslips.
+    const perPay = gross / pays;
+    const month = r2(perPay * (1 - irpfPct / 100) - ss / 12);
+    return { ss, irpf, irpfPct, net, month, extra: pays > 12 ? r2(perPay * (1 - irpfPct / 100)) : null };
+  }
+
+  // Fixed-rate loan with constant monthly payments (French system), with a year-by-year schedule.
+  function mortgage(principal, ratePct, years) {
+    const n = Math.round(years * 12), i = ratePct / 100 / 12;
+    if (principal <= 0 || n <= 0) return null;
+    const payment = i ? principal * i / (1 - Math.pow(1 + i, -n)) : principal / n;
+    const rows = [];
+    let left = principal, interest = 0, yInt = 0, yCap = 0;
+    for (let m = 1; m <= n; m++) {
+      const int = left * i, cap = payment - int;
+      left -= cap; interest += int; yInt += int; yCap += cap;
+      if (m % 12 === 0 || m === n) { rows.push({ year: Math.ceil(m / 12), interest: r2(yInt), capital: r2(yCap), left: r2(Math.max(left, 0)) }); yInt = yCap = 0; }
+    }
+    return { payment: r2(payment), interest: r2(interest), total: r2(principal + interest), rows };
+  }
+
+  // Savings with monthly compounding and a contribution at the end of each month.
+  function compound(initial, monthly, ratePct, years) {
+    const i = ratePct / 100 / 12, rows = [];
+    let value = Math.max(initial, 0), paid = value;
+    for (let m = 1; m <= Math.round(years * 12); m++) {
+      value = value * (1 + i) + monthly; paid += monthly;
+      if (m % 12 === 0) rows.push({ year: m / 12, paid: r2(paid), value: r2(value) });
+    }
+    return { value: r2(value), paid: r2(paid), interest: r2(value - paid), rows };
+  }
+
+  const Lib = { r2, num, netSalary, mortgage, compound, autonomoQuota, RETA_RATE_2026, verifactu, dniLetter, checkId, checkIban, vat, hourlyRate, margin, priceForMargin, addDays, daysBetween, wifiPayload, numberToWords, eurosToWords, percentOf, whatPercent, percentChange, discount, lateInterest, breakEven, surcharge, textStats };
   if (typeof module !== 'undefined' && module.exports) module.exports = Lib; else g.Lib = Lib;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

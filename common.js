@@ -2,6 +2,7 @@
 const TOOLS = [
   { href: '/verifactu-obligado.html', v: 'ZminobVQWaU', t: '¿Estoy obligado a Verifactu?', d: 'Test de cuatro preguntas: si te afecta, desde cuándo y qué hacer.' },
   { href: '/cuota-autonomos.html', v: 'BVCKPpie9lE', t: 'Cuota de autónomos 2026', d: 'Tu tramo y tu cuota mensual según lo que ganas, con la tabla oficial.' },
+  { href: '/calculadora-sueldo-neto.html', t: 'Calculadora de sueldo neto 2026', d: 'De bruto a neto: IRPF, Seguridad Social y lo que cobras al mes.' },
   { href: '/presupuesto-rapido/', v: 'Ea9s3TWvJQw', t: 'Presupuestos en PDF', d: 'Crea un presupuesto profesional y guárdalo en PDF.' },
   { href: '/calculadora-iva.html', v: 'e00s7SLb8Is', t: 'Calculadora de IVA e IRPF', d: 'Añade o quita el IVA y calcula la retención de una factura.' },
   { href: '/calculadora-precio-hora.html', v: 'dJ7DoIOUpik', t: 'Calculadora de precio por hora', d: 'Cuánto cobrar por hora para llegar al sueldo que quieres.' },
@@ -10,12 +11,16 @@ const TOOLS = [
   { href: '/calculadora-vencimiento.html', v: 'y3_9uB_aK5k', t: 'Vencimiento de facturas', d: 'Fecha de pago a 30, 60 o 90 días y días que faltan.' },
   { href: '/generador-qr.html', v: 'oj0670hS200', t: 'Generador de QR y QR de WiFi', d: 'Crea un código QR de un enlace, un texto o tu WiFi.' },
   { href: '/calculadora-porcentajes.html', v: 'X8oD9vKaHnk', t: 'Calculadora de porcentajes', d: 'Porcentaje de una cantidad, descuento y subida o bajada.' },
+  { href: '/calculadora-hipoteca.html', t: 'Calculadora de hipoteca y préstamo', d: 'Cuota al mes, intereses totales y cuadro de amortización.' },
+  { href: '/calculadora-interes-compuesto.html', t: 'Calculadora de interés compuesto', d: 'Cuánto crece tu ahorro con aportaciones mensuales.' },
   { href: '/numero-a-letras.html', v: '_gMS8LSxF1g', t: 'Número a letras', d: 'Convierte un importe en euros a texto para recibos y contratos.' },
   { href: '/calculadora-intereses-demora.html', v: 'RPapcnbB0PI', t: 'Intereses de demora', d: 'Cuánto reclamar por una factura pagada con retraso.' },
   { href: '/calculadora-punto-equilibrio.html', v: 'XCDQ2NJVszY', t: 'Punto de equilibrio', d: 'Cuánto tienes que vender al mes para cubrir gastos.' },
   { href: '/calculadora-recargo-equivalencia.html', v: 'k3KBN0QWcZc', t: 'Recargo de equivalencia', d: 'IVA más recargo del 5,2 %, 1,4 % o 0,5 % en una factura.' },
   { href: '/contador-palabras.html', v: 'XMgbJr79WAg', t: 'Contador de palabras y caracteres', d: 'Palabras, caracteres, líneas y tiempo de lectura de un texto.' }
 ];
+// GoatCounter site code for the anonymous, cookieless visit counter. While it is empty, nothing is loaded.
+const GOATCOUNTER = '';
 const eur = (n) => new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(n);
 const pct = (n) => new Intl.NumberFormat('es-ES', { maximumFractionDigits: 2 }).format(n) + ' %';
 const $ = (s) => document.querySelector(s);
@@ -51,6 +56,14 @@ const $ = (s) => document.querySelector(s);
   document.body.append(after);
 
   const foot = document.createElement('footer');
-  foot.innerHTML = 'Los cálculos se hacen en tu navegador; no se envía ningún dato. Resultados orientativos, no son asesoramiento fiscal. · Hecho con Claude Code · <a href="https://github.com/codedypilla-pixel/codedypilla-pixel.github.io">Código</a> · <a href="https://www.youtube.com/@herramientas-autonomos" target="_blank" rel="noopener">Tutoriales en YouTube</a>';
+  if (GOATCOUNTER) {
+    const gc = document.createElement('script');
+    gc.async = true;
+    gc.dataset.goatcounter = `https://${GOATCOUNTER}.goatcounter.com/count`;
+    gc.src = 'https://gc.zgo.at/count.js';
+    document.head.append(gc);
+  }
+
+  foot.innerHTML = 'Los cálculos se hacen en tu navegador; lo que escribes no se envía a ningún sitio.' + (GOATCOUNTER ? ' Las visitas se cuentan de forma anónima y sin cookies.' : '') + ' Resultados orientativos, no son asesoramiento fiscal. · Hecho con Claude Code · <a href="https://github.com/codedypilla-pixel/codedypilla-pixel.github.io">Código</a> · <a href="https://www.youtube.com/@herramientas-autonomos" target="_blank" rel="noopener">Tutoriales en YouTube</a>';
   document.body.append(foot);
 })();

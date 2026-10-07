@@ -6,6 +6,7 @@ Calculadoras y generadores sencillos para autónomos y pequeños negocios. Sin r
 
 - [¿Estoy obligado a Verifactu?](https://codedypilla-pixel.github.io/verifactu-obligado.html)
 - [Cuota de autónomos 2026](https://codedypilla-pixel.github.io/cuota-autonomos.html)
+- [Calculadora de sueldo neto 2026](https://codedypilla-pixel.github.io/calculadora-sueldo-neto.html)
 - [Presupuestos en PDF](https://codedypilla-pixel.github.io/presupuesto-rapido/)
 - [Calculadora de IVA e IRPF](https://codedypilla-pixel.github.io/calculadora-iva.html)
 - [Calculadora de precio por hora](https://codedypilla-pixel.github.io/calculadora-precio-hora.html)
@@ -14,6 +15,8 @@ Calculadoras y generadores sencillos para autónomos y pequeños negocios. Sin r
 - [Vencimiento de facturas](https://codedypilla-pixel.github.io/calculadora-vencimiento.html)
 - [Generador de QR y QR de WiFi](https://codedypilla-pixel.github.io/generador-qr.html)
 - [Calculadora de porcentajes](https://codedypilla-pixel.github.io/calculadora-porcentajes.html)
+- [Calculadora de hipoteca y préstamo](https://codedypilla-pixel.github.io/calculadora-hipoteca.html)
+- [Calculadora de interés compuesto](https://codedypilla-pixel.github.io/calculadora-interes-compuesto.html)
 - [Número a letras](https://codedypilla-pixel.github.io/numero-a-letras.html)
 - [Intereses de demora](https://codedypilla-pixel.github.io/calculadora-intereses-demora.html)
 - [Punto de equilibrio](https://codedypilla-pixel.github.io/calculadora-punto-equilibrio.html)

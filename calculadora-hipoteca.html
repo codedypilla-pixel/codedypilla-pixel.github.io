@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Calculadora de hipoteca y préstamo: cuota mensual e intereses</title>
+<meta name="description" content="Calcula la cuota mensual de una hipoteca o un préstamo a tipo fijo, los intereses totales y el cuadro de amortización año a año. Gratis y sin registro.">
+<link rel="canonical" href="https://codedypilla-pixel.github.io/calculadora-hipoteca.html">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <h1>Calculadora de hipoteca y préstamo</h1>
+  <p class="lead">Cuánto pagas al mes, cuánto se va en intereses y cuánto te queda por devolver cada año.</p>
+  <section class="card">
+    <div class="grid">
+      <div><label for="amount">Importe que pides (€)</label><input id="amount" type="number" inputmode="decimal" min="0" step="1000" value="150000"></div>
+      <div><label for="rate">Interés anual (%)</label><input id="rate" type="number" inputmode="decimal" min="0" step="0.05" value="3"></div>
+      <div><label for="years">Plazo (años)</label><input id="years" type="number" inputmode="decimal" min="1" max="50" step="1" value="25"></div>
+    </div>
+    <div class="res">
+      <div><span>Intereses totales</span><span id="oInt"></span></div>
+      <div><span>Total que devuelves</span><span id="oTotal"></span></div>
+      <div class="big"><span>Cuota al mes</span><span id="oPay"></span></div>
+    </div>
+    <p class="note">Cuota de un préstamo a tipo fijo. No incluye comisiones, seguros ni los gastos de la compra.</p>
+  </section>
+
+  <h2>Cuadro de amortización por años</h2>
+  <div class="card" style="overflow-x:auto;padding:8px">
+    <table id="tabla" style="width:100%;border-collapse:collapse;font-size:14px"></table>
+  </div>
+
+  <h2>Cómo se calcula la cuota</h2>
+  <p>Casi todas las hipotecas y préstamos en España usan el sistema francés: pagas la misma cuota todos los meses, pero su composición cambia. Al principio la mayor parte son intereses, porque debes mucho; con el tiempo, cada cuota devuelve más capital.</p>
+  <p>Por eso amortizar por adelantado ahorra más intereses en los primeros años, y por eso alargar el plazo baja la cuota pero sube lo que pagas en total.</p>
+  <p>En una hipoteca variable, la cuota se recalcula en cada revisión con el euríbor del momento más tu diferencial. Puedes usar la calculadora con ese tipo para ver cómo quedaría.</p>
+</main>
+<script src="lib.js"></script>
+<script src="common.js"></script>
+<script>
+const cell = (v, right) => `<td style="padding:6px;border-top:1px solid var(--line)${right ? ';text-align:right' : ''}">${v}</td>`;
+function calc() {
+  const r = Lib.mortgage(Lib.num($('#amount').value), Math.max(Lib.num($('#rate').value), 0), Math.min(Lib.num($('#years').value), 50));
+  $('#oInt').textContent = r ? eur(r.interest) : '—';
+  $('#oTotal').textContent = r ? eur(r.total) : '—';
+  $('#oPay').textContent = r ? eur(r.payment) : '—';
+  $('#tabla').innerHTML = !r ? '' : '<tr><th style="text-align:left;padding:6px">Año</th><th style="text-align:right;padding:6px">Intereses</th><th style="text-align:right;padding:6px">Capital</th><th style="text-align:right;padding:6px">Pendiente</th></tr>' +
+    r.rows.map((y) => `<tr>${cell(y.year)}${cell(eur(y.interest), true)}${cell(eur(y.capital), true)}${cell(eur(y.left), true)}</tr>`).join('');
+}
+document.addEventListener('input', calc);
+calc();
+</script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Calculadora de sueldo neto 2026: de bruto a neto con IRPF y Seguridad Social</title>
+<meta name="description" content="Calcula tu sueldo neto en 2026 a partir del bruto anual: retención de IRPF, Seguridad Social y lo que cobras al mes en 12 o 14 pagas. Gratis y sin registro.">
+<link rel="canonical" href="https://codedypilla-pixel.github.io/calculadora-sueldo-neto.html">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <h1>Calculadora de sueldo neto 2026</h1>
+  <p class="lead">Escribe tu sueldo bruto anual y te digo cuánto cobras al mes después de la retención de IRPF y de la Seguridad Social.</p>
+  <section class="card">
+    <div class="grid">
+      <div><label for="gross">Sueldo bruto al año (€)</label><input id="gross" type="number" inputmode="decimal" min="0" step="500" value="25000"></div>
+      <div><label for="kids">Hijos menores de 25 años a tu cargo</label><select id="kids"><option value="0">Ninguno</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4 o más</option></select></div>
+    </div>
+    <label>Número de pagas</label>
+    <div class="seg">
+      <label><input type="radio" name="pays" value="14" checked>14 pagas</label>
+      <label><input type="radio" name="pays" value="12">12 pagas</label>
+    </div>
+    <div class="res">
+      <div><span>Seguridad Social al año (6,50 %)</span><span id="oSS"></span></div>
+      <div><span>Retención de IRPF</span><span id="oPct"></span></div>
+      <div><span>IRPF al año</span><span id="oIrpf"></span></div>
+      <div><span>Sueldo neto al año</span><span id="oNet"></span></div>
+      <div id="rExtra"><span>Cada paga extra</span><span id="oExtra"></span></div>
+      <div class="big"><span>Neto al mes</span><span id="oMonth"></span></div>
+    </div>
+    <p class="note">Cálculo para un contrato indefinido en territorio común, sin discapacidad ni otras circunstancias personales. Navarra y el País Vasco tienen sus propias tablas de retención.</p>
+  </section>
+
+  <h2>Cómo se pasa de bruto a neto</h2>
+  <p>De tu sueldo bruto salen dos descuentos. El primero es la cotización a la Seguridad Social, que en 2026 es el 6,50 % de tu base: 4,70 % de contingencias comunes, 1,55 % de desempleo, 0,10 % de formación profesional y 0,15 % del mecanismo de equidad intergeneracional. La base tiene un tope de 5.101,20 € al mes; por encima se paga una pequeña cuota de solidaridad.</p>
+  <p>El segundo es la retención de IRPF, un adelanto del impuesto que tu empresa ingresa en Hacienda por ti. Se calcula sobre el sueldo del año: se restan la Seguridad Social, 2.000 € de gastos y, en sueldos bajos, una reducción por rendimientos del trabajo. Al resultado se le aplica la escala del impuesto y se descuenta tu mínimo personal y familiar.</p>
+  <p>Por debajo de 15.876 € brutos al año no se retiene nada si no tienes hijos; el límite sube a 16.342 € con un hijo y a 16.867 € con dos o más.</p>
+  <h2>12 o 14 pagas</h2>
+  <p>El neto del año es el mismo. Con 14 pagas, las dos extras no llevan Seguridad Social porque ya se ha cotizado por ellas en las doce nóminas normales; por eso la paga extra es algo más alta que una mensualidad.</p>
+  <p class="note">Tipos de cotización de la Orden PJC/297/2026 y escala de retenciones del Reglamento del IRPF. Revisado el 7 de octubre de 2026. Resultado orientativo: tu nómina puede variar por el convenio, las retribuciones en especie, el tipo de contrato o tu situación familiar.</p>
+</main>
+<script src="lib.js"></script>
+<script src="common.js"></script>
+<script>
+function calc() {
+  const pays = +document.querySelector('[name=pays]:checked').value;
+  const r = Lib.netSalary(Lib.num($('#gross').value), { pays, children: +$('#kids').value });
+  $('#oSS').textContent = eur(r.ss);
+  $('#oPct').textContent = pct(r.irpfPct);
+  $('#oIrpf').textContent = eur(r.irpf);
+  $('#oNet').textContent = eur(r.net);
+  $('#rExtra').hidden = r.extra === null;
+  $('#oExtra').textContent = r.extra === null ? '' : eur(r.extra);
+  $('#oMonth').textContent = eur(r.month);
+}
+document.addEventListener('input', calc);
+calc();
+</script>
+</body>
+</html>
