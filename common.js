@@ -19,8 +19,8 @@ const TOOLS = [
   { href: '/calculadora-recargo-equivalencia.html', v: 'k3KBN0QWcZc', t: 'Recargo de equivalencia', d: 'IVA más recargo del 5,2 %, 1,4 % o 0,5 % en una factura.' },
   { href: '/contador-palabras.html', v: 'XMgbJr79WAg', t: 'Contador de palabras y caracteres', d: 'Palabras, caracteres, líneas y tiempo de lectura de un texto.' }
 ];
-// GoatCounter site code for the anonymous, cookieless visit counter. While it is empty, nothing is loaded.
-const GOATCOUNTER = '';
+// Google Analytics measurement ID (G-XXXXXXXXXX). While it is empty, nothing is loaded and no banner is shown.
+const GA_ID = 'G-7R9R81Q7K5';
 const eur = (n) => new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(n);
 const pct = (n) => new Intl.NumberFormat('es-ES', { maximumFractionDigits: 2 }).format(n) + ' %';
 const $ = (s) => document.querySelector(s);
@@ -56,14 +56,48 @@ const $ = (s) => document.querySelector(s);
   document.body.append(after);
 
   const foot = document.createElement('footer');
-  if (GOATCOUNTER) {
-    const gc = document.createElement('script');
-    gc.async = true;
-    gc.dataset.goatcounter = `https://${GOATCOUNTER}.goatcounter.com/count`;
-    gc.src = 'https://gc.zgo.at/count.js';
-    document.head.append(gc);
+  // Analytics is opt-in: the script is only requested after the visitor accepts, and the choice is remembered.
+  const CONSENT = 'cookie-consent';
+  const choice = () => { try { return localStorage.getItem(CONSENT); } catch { return null; } };
+  const remember = (v) => { try { v ? localStorage.setItem(CONSENT, v) : localStorage.removeItem(CONSENT); } catch { /* storage blocked */ } };
+  function loadAnalytics() {
+    const s = document.createElement('script');
+    s.async = true;
+    s.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
+    document.head.append(s);
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function () { dataLayer.push(arguments); };
+    gtag('js', new Date());
+    gtag('config', GA_ID);
+  }
+  function dropAnalyticsCookies() {
+    document.cookie.split(';').map((c) => c.split('=')[0].trim()).filter((n) => n.startsWith('_ga')).forEach((n) => {
+      document.cookie = `${n}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
+      document.cookie = `${n}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=${location.hostname}`;
+    });
+  }
+  function askConsent() {
+    const bar = document.createElement('div');
+    bar.className = 'consent';
+    bar.setAttribute('role', 'dialog');
+    bar.setAttribute('aria-label', 'Cookies');
+    bar.innerHTML = '<p>Usamos cookies de Google Analytics para saber qué herramientas se usan más. Lo que escribes en las calculadoras no se envía. <a href="/privacidad.html">Más información</a></p><div><button type="button" data-v="no">Rechazar</button><button type="button" data-v="yes">Aceptar</button></div>';
+    bar.addEventListener('click', (e) => {
+      const v = e.target.dataset.v;
+      if (!v) return;
+      remember(v);
+      bar.remove();
+      if (v === 'yes') loadAnalytics();
+    });
+    document.body.append(bar);
+  }
+  if (GA_ID) {
+    if (choice() === 'yes') loadAnalytics();
+    else if (!choice()) askConsent();
+    // The privacy page has a button to change the choice.
+    document.getElementById('cookieReset')?.addEventListener('click', () => { remember(null); dropAnalyticsCookies(); location.reload(); });
   }
 
-  foot.innerHTML = 'Los cálculos se hacen en tu navegador; lo que escribes no se envía a ningún sitio.' + (GOATCOUNTER ? ' Las visitas se cuentan de forma anónima y sin cookies.' : '') + ' Resultados orientativos, no son asesoramiento fiscal. · Hecho con Claude Code · <a href="https://github.com/codedypilla-pixel/codedypilla-pixel.github.io">Código</a> · <a href="https://www.youtube.com/@herramientas-autonomos" target="_blank" rel="noopener">Tutoriales en YouTube</a>';
+  foot.innerHTML = 'Los cálculos se hacen en tu navegador; lo que escribes no se envía a ningún sitio. Resultados orientativos, no son asesoramiento fiscal. · Hecho con Claude Code · <a href="https://github.com/codedypilla-pixel/codedypilla-pixel.github.io">Código</a> · <a href="https://www.youtube.com/@herramientas-autonomos" target="_blank" rel="noopener">Tutoriales en YouTube</a>' + (GA_ID ? ' · <a href="/privacidad.html">Privacidad y cookies</a>' : '');
   document.body.append(foot);
 })();
